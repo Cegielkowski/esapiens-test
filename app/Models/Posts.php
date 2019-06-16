@@ -9,18 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
+class Posts extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
 {
     use Authenticatable, Authorizable;
-
+    
     /**
-     * The attributes excluded from the model's JSON form.
+     * The attributes that the user is allowed to fill.
      *
      * @var array
      */
-    protected $hidden = [
-        'password'
-    ];
+    protected $fillable = ['title', 'content', 'user_id'];
 
     /**
      * @return int
