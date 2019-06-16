@@ -40,13 +40,13 @@ email: johndoe@example.com
 password: johndoe
 ```
 
-Request:
+Requisição:
 
 ```sh
 curl -X POST -F "email=johndoe@example.com" -F "password=johndoe" "http://localhost:8000/api/login"
 ```
 
-Response:
+Resposta:
 
 ```
 {
@@ -67,7 +67,7 @@ Requisição:
 curl -X GET -H "Authorization: Bearer a_long_token_appears_here" "http://localhost:8000/api/me"
 ```
 
-Response:
+Resposta:
 
 ```
 {
