@@ -31,12 +31,14 @@ class AuthController extends Controller
         $attributes = [
             'email' => $request->get('email'),
             'name' => $request->get('name'),
-            'password' => app('hash')->make($password)
+            'password' => app('hash')->make($password),
+            'coins'=> 0
         ];
         $user = User::create($attributes);
 
         $credentials = $request->only('email', 'password');
         // Validation failed will return 401
+
         if (!$token = $this->guard()->attempt($credentials)) {
             $this->response->errorUnauthorized();
         }

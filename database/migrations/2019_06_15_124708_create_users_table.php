@@ -17,6 +17,7 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('name', 100);	
             $table->string('email', 50);	
+            $table->integer('coins')->default(0);		
             $table->string('password', 50);	
             $table->date('subscriber');	
             $table->softDeletes();	

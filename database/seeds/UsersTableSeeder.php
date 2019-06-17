@@ -10,7 +10,8 @@ class UsersTableSeeder extends Seeder
             [
                 'name' => 'Seyi', 
                 'email' => 'seyii@seyi.com',
-                'password' => 'somerandompassword'
+                'coins' => 230,
+                'password' => app('hash')->make('somerandompassword')
             ]
         );
         DB::table('posts')->insert([
