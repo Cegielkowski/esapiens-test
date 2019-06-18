@@ -8,7 +8,7 @@ class UsersTableSeeder extends Seeder
     {
         DB::table('users')->insert(
             [
-                'name' => 'Seyi', 
+                'username' => 'Seyi',
                 'email' => 'seyii@seyi.com',
                 'coins' => 230,
                 'password' => app('hash')->make('somerandompassword')

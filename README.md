@@ -3,7 +3,6 @@
 ## Tecnologias
 
 - [Lumen 5.5](https://github.com/laravel/lumen/tree/v5.5.0).
-- [JWT Auth](https://github.com/tymondesigns/jwt-auth) for Lumen Application. <sup>[1]</sup>
 - [Dingo](https://github.com/dingo/api) to easily and quickly build your own API. <sup>[1]</sup>
 - [Lumen Generator](https://github.com/flipboxstudio/lumen-generator) to make development even easier and faster.
 - [CORS and Preflight Request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) support.
@@ -32,55 +31,24 @@ Ou pelo comando artisan (meu favorito):
 php artisan serve
 ```
 
-Para autenticar um usuario, faça um `POST` request para o `/api/login` com email e senha:
-
-```
-Exemplo : 
-email: johndoe@example.com
-password: johndoe
-```
-
-Requisição:
+Após isso, rode:
 
 ```sh
-curl -X POST -F "email=johndoe@example.com" -F "password=johndoe" "http://localhost:8000/api/login"
+php artisan migrate:install
 ```
 
-Resposta:
-
-```
-{
-  "success": {
-    "access_token": "a_long_token_appears_here"
-    "toke_type": "bearer",
-    "expires_in": microtime
-  }
-}
-```
-
-- Com o token fornecido pela solicitação acima, você pode verificar o usuário autenticado enviando um
-`GET` request para: `/api/me`.
-
-Requisição:
+Também rode:
 
 ```sh
-curl -X GET -H "Authorization: Bearer a_long_token_appears_here" "http://localhost:8000/api/me"
+php artisan migrate
 ```
 
-Resposta:
+E depois para gerar dados ficticios:
 
+```sh
+php artisan db:seed
 ```
-{
-  "success": {
-    "user": {
-      "id": 1,
-      "name": "John Doe",
-      "email": "johndoe@example.com",
-      "created_at": null,
-      "updated_at": null
-    }
-  }
-}
-```
+
+
 
 

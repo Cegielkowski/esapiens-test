@@ -5,12 +5,8 @@ $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', [
     'namespace' => 'App\Http\Controllers\Api\V1',
 ], function ($api) {
-    $api->post('/register', 'AuthController@register');
-    $api->post('/login', 'AuthController@login');
-    $api->post('/buycoins', 'AuthController@buyCoins');
-    $api->get('/me', 'AuthController@me');
-    $api->get('/refresh', 'AuthController@refresh');
-
-    $api->post('/comment', 'CommentController@comment');
+    $api->post('/register', 'UserController@register');
+    $api->post('/comment', 'CommentController@register');
+    $api->delete('/delete-comment', 'CommentController@delete');
     $api->post('/storage', 'StorageController@index');
 });

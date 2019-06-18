@@ -32,8 +32,7 @@ $app->withEloquent();
 //config
 // app
 $app->configure('app');
-// jwt
-$app->configure('jwt');
+
 // filesystem
 $app->configure('filesystems');
 // image
@@ -114,16 +113,11 @@ $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(Barryvdh\Cors\ServiceProvider::class);
 // lumen generator
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
-// jwt
-$app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 // dingo
 $app->register(Dingo\Api\Provider\LumenServiceProvider::class);
 // Image intervention
 $app->register(Intervention\Image\ImageServiceProviderLumen::class);
 
-app('Dingo\Api\Auth\Auth')->extend('jwt', function ($app) {
-    return new Dingo\Api\Auth\Provider\JWT($app['Tymon\JWTAuth\JWTAuth']);
-});
 // Mail
 $app->register(\Illuminate\Mail\MailServiceProvider::class);
 
