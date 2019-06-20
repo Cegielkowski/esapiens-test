@@ -2,7 +2,12 @@
 
 namespace App\Libraries;
 
+use App\Models\Comments;
+use App\Models\Notifications;
+use App\Models\Posts;
 use App\Models\Transactions;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 class Helper
 {
@@ -14,19 +19,16 @@ class Helper
     }
 
     /**
-     * @param int $userId Id from the user
-     * @param int $commentId Id from the comment
-     * @param int $value Value of the transaction
+     * @param int $userId
+     * @param int $value
+     * @param int $tax
+     * @param int $commentId
+     * @return array
      *
-     *  This function will register the transaction, and apply the tax from the system
-     *
+     * This function will create 2 transactions, 1 - for the customer and the other for the system
      */
-    public static function registerTransaction(int $userId, $commentId, int $value)
+    public static function registerTransaction(int $userId, float $value, float $tax, int $commentId)
     {
-       $helper = new Helper();
-       $tax = $value * $helper->getTax();
-       $value -= $tax;
-
         $attributes = [
             'user_id' => $userId,
             'comment_id' => $commentId,
@@ -42,32 +44,57 @@ class Helper
             'transaction_id' => $transactions->id
         ];
 
-        $transactionsTax = Transactions::create($attributesTax);
-
-        return [$transactions->id, $transactionsTax->id];
+        Transactions::create($attributesTax);
     }
-
 
     /**
-     * @param int $basicTransaction id from the real transaction
-     * @param int $taxTransaction id from the tax transaction
-     * @param int $commentId id from the comment
+     * @param int $notificationFrom
+     * @param int $notificationTo
+     * @param int $commentId
+     * @param int $postId
      *
-     * This function will put the comment id on the transactions
+     * This function create a notification to the user
      */
-    public static function updateTransaction(int $basicTransaction, int $taxTransaction, int $commentId)
+    public static function notify(int $notificationFrom, int $notificationTo, int $commentId, int $postId)
     {
-        $basicTransaction = Transactions::findOrFail($basicTransaction);
-        $taxTransaction = Transactions::findOrFail($taxTransaction);
+        $notificationFrom = User::findOrFail($notificationFrom);
+        $notificationTo = User::findOrFail($notificationTo);
+        $comment = Comments::findOrFail($commentId);
+        $post = Posts::findOrFail($postId);
 
-        $basicTransaction->update([
-            'comment_id' => $commentId
-        ]);
+        $attributes = [
+            'notification_from' => $notificationFrom->id,
+            'notification_to' => $notificationTo->id,
+            'comment_id' => $comment->id,
+            'post_id' => $post->id
+        ];
+        $title = 'You have a new comment on ' . $post->title;
+        $content = 'User: ' . $notificationFrom->username . 'commented: ' . $comment->content;
 
-        $taxTransaction->update([
-            'comment_id' => $commentId
-        ]);
+        Helper::sendEmail($title, $content, $notificationTo);
+
+        Notifications::create($attributes);
     }
+
+    /**
+     * @param string $title
+     * @param string $content
+     * @param User $user
+     * Function that send email to the user
+     */
+    public static function sendEmail(string $title, string $content, User $user)
+    {
+//        try {
+//            Mail::send($title, ['user' => $user], function ($m) use ($user, $content) {
+//                $m->from('hello@app.com', 'Your Application');
+//
+//                $m->to($user->email, $user->name)->subject($content);
+//            });
+//        } catch (Exception $e) {
+//            $error = $e->getMessage();
+//        }
+    }
+
 
     /**
      * @return float
@@ -83,5 +110,19 @@ class Helper
     private function setTax(float $tax)
     {
         $this->tax = $tax;
+    }
+
+    /**
+     * @param $coins
+     * @return float
+     * This function will apply the system tax
+     */
+    public static function applySystemTax(&$coins): float
+    {
+        $helper = new Helper();
+        $tax = $coins * $helper->getTax();
+        $coins -= $tax;
+
+        return $tax;
     }
 }

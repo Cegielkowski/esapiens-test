@@ -17,6 +17,9 @@ class CreateNotificationsTable extends Migration
             $table->increments('id');
             $table->integer('notification_from')->unsigned();
             $table->integer('notification_to')->unsigned();
+            $table->integer('comment_id')->unsigned();
+            $table->integer('post_id')->unsigned();
+            $table->boolean('viewed')->nullable();
             $table->softDeletes();	
             $table->timestamps();
         });
@@ -31,6 +34,16 @@ class CreateNotificationsTable extends Migration
                     ->foreign('notification_to')
                     ->references('id')
                     ->on('users')
+                    ->onDelete('cascade');
+                $table
+                    ->foreign('comment_id')
+                    ->references('id')
+                    ->on('comments')
+                    ->onDelete('cascade');
+                $table
+                    ->foreign('post_id')
+                    ->references('id')
+                    ->on('posts')
                     ->onDelete('cascade');
             }
         );

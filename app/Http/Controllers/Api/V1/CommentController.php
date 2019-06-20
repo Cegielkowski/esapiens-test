@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Comments;
 use Illuminate\Http\Request;
 use App\Libraries\Helper;
+
 class CommentController extends Controller
 {
     public function __construct()
@@ -30,37 +31,33 @@ class CommentController extends Controller
         }
 
         $lessOneMinute = date('Y-m-d H:i:s', mktime(date('H'),date('i')-1,date('s'), date('m'),date('d'), date('Y')));
-
-
         $user = User::findOrFail($request->get('user_id'));
         $post = Posts::findOrFail($request->get('post_id'));
         $postOwner = User::findOrFail($post->user_id);
-
-        $lastComments = Comments::where('user_id', $request->get('user_id'))
-            ->where('created_at','>', $lessOneMinute)
-            ->count();
+        $lastComments = Comments::getLastComments($user->id, $lessOneMinute);
 
         if( $lastComments >= 3) {
             return $this->response->array(['error' => 'You can not comment more than 3 times per minute'])->setStatusCode(401);
         }
 
         $coins = $request->get('coins');
-        $highlight = 0;
+        $tax = $highlight = 0;
         if(!empty($coins)) {
             if($user->coins < $coins) {
                 return $this->response->array(['error' => 'You do not have enough coins'])->setStatusCode(401);
             }
             $user->coins -= $coins;
             $user->save();
-            $transactions = Helper::registerTransaction($user->id, null, $coins);
             $highlight = 1;
+            $tax = Helper::applySystemTax($coins);
         } else {
             if ($postOwner->id != $user->id) {
                 if($user->subcriber == 0 && $postOwner->subcriber == 0) {
-                    return $this->response->array(['error' => 'You are not a subcriber, so you can not comment on a post from an another not subscriber'])->setStatusCode(401);
+                    return $this->response->array(['error' => 'You are not a subscriber, so you can not comment on a post from an another not subscriber'])->setStatusCode(401);
                 }
             }
         }
+
         $attributes = [
             'user_id' => $request->get('user_id'),
             'post_id' => $request->get('post_id'),
@@ -72,17 +69,18 @@ class CommentController extends Controller
 
         $comment = Comments::create($attributes);
 
-         Helper::updateTransaction($transactions[0],$transactions[1], $comment->id);
-
-
         $result['data'] = [
             'comment' => $comment,
         ];
 
+        Helper::registerTransaction($user->id, $coins, $tax, $comment->id);
+        Helper::notify($user->id, $postOwner->id, $comment->id,$post->id);
+
         return $this->response->array($result)->setStatusCode(201);
     }
 
-    public function delete(Request $request) {
+    public function delete(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'id' => 'required|integer',
             'user_id' => 'required|integer'
@@ -103,22 +101,19 @@ class CommentController extends Controller
         }
 
         if(empty($request->get('delete_all'))) {
-            $comment->delete();
+            $comment->forceDelete();
         } else {
             if(!$postOwner) {
                 return $this->response->array(['error' => 'You are not the owner of the post to delete all comments from this user'])->setStatusCode(401);
             }
 
-            Comments::where(['user_id' => $comment->user_id, 'post_id' => $comment->post_id])->delete();
-            $comment = 'deleted all comments from this user on this post';
+            $comment = Comments::deleteAllComments($comment->user_id, $comment->post_id);
         }
 
         $result['data'] = [
             'comment' => $comment,
         ];
+
         return $this->response->array($result)->setStatusCode(201);
     }
-
-
-
 }

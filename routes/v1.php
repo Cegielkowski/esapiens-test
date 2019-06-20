@@ -8,5 +8,5 @@ $api->version('v1', [
     $api->post('/register', 'UserController@register');
     $api->post('/comment', 'CommentController@register');
     $api->delete('/delete-comment', 'CommentController@delete');
-    $api->post('/storage', 'StorageController@index');
+    $api->get('/notification', 'NotificationController@get');
 });
