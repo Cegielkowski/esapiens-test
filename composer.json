@@ -16,7 +16,9 @@
         "intervention/image": "^2.4",
         "nordsoftware/lumen-cors": "^2.2",
         "guzzlehttp/guzzle": "^6.3",
-        "barryvdh/laravel-cors": "^0.11.0"
+        "barryvdh/laravel-cors": "^0.11.0",
+        "predis/predis": "^1.1",
+        "illuminate/redis": "5.5"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

@@ -125,4 +125,15 @@ class Helper
 
         return $tax;
     }
+
+    /**
+     * @param $number - This number will come to check if it is a positive or negative number
+     * @param $correction - This will be the replace if it is negative the number
+     */
+    public static function fixNegativeNumbers(&$number, $correction = 0) {
+        if ($number <= 0) {
+            $number = $correction;
+        }
+    }
+
 }

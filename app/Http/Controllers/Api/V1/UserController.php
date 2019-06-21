@@ -17,7 +17,7 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email',
             'coins' => 'required|integer',
             'username' => 'required|string',
             'password' => 'required|string|min:6',
@@ -34,11 +34,9 @@ class UserController extends Controller
             'password' => app('hash')->make($password),
             'coins'=> $request->get('coins')
         ];
-        $user = User::create($attributes);
-
 
         $result['data'] = [
-            'user' => $user,
+            'user' => User::create($attributes),
         ];
 
         return $this->response->array($result)->setStatusCode(201);

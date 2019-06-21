@@ -28,7 +28,7 @@ class NotificationController  extends Controller
         $user = User::findOrFail($request->get('user_id'));
 
         $notificationModel = new Notifications();
-        $notifications = $notificationModel->get($user->id);
+        $notifications = $notificationModel->get($user->id, $request->get('page'));
         $firstView = [];
 
         foreach ($notifications as $notification) {

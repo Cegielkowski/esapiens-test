@@ -7,6 +7,7 @@ $api->version('v1', [
 ], function ($api) {
     $api->post('/register', 'UserController@register');
     $api->post('/comment', 'CommentController@register');
-    $api->delete('/delete-comment', 'CommentController@delete');
+    $api->get('/list-comment', 'CommentController@getByPost');
     $api->get('/notification', 'NotificationController@get');
+    $api->delete('/delete-comment', 'CommentController@delete');
 });

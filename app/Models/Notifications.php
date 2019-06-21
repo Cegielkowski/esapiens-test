@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use phpDocumentor\Reflection\Types\Integer;
+use Cache;
 
 class Notifications extends Model
 {
@@ -12,12 +12,26 @@ class Notifications extends Model
 
     protected $fillable = ['notification_from', 'notification_to', 'comment_id', 'post_id'];
 
-    public function get($userId)
+    /**
+     * @param $userId
+     * @param int $page
+     * @return mixed
+     *
+     * This function will retrieve the notifications from the user
+     */
+    public function get($userId, $page = 1)
     {
+        if (empty($page)) {
+            $page = 1;
+        }
+        $expiration = 1/30; //Minutes that will be cached, in this case, it will be for 2 seconds
+        $key = "notification_" . $userId . "_" . $page;
         $lessOneHour = date('Y-m-d H:i:s', mktime(date('H')-1,date('i'),date('s'), date('m'),date('d'), date('Y')));
         $where = " notification_to = $userId and viewed is null or notification_to = $userId and viewed = 1 and updated_at > '$lessOneHour' ";
 
-        return  $this->whereRaw($where)->paginate(15);
+        return Cache::remember($key,$expiration, function() use($where){
+            return  $this->whereRaw($where)->paginate(15);
+        });
     }
 
     public function viewed(array $userId)

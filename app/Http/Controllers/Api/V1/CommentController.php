@@ -41,6 +41,7 @@ class CommentController extends Controller
         }
 
         $coins = $request->get('coins');
+        Helper::fixNegativeNumbers($coins);
         $tax = $highlight = 0;
         if(!empty($coins)) {
             if($user->coins < $coins) {
@@ -115,5 +116,24 @@ class CommentController extends Controller
         ];
 
         return $this->response->array($result)->setStatusCode(201);
+    }
+
+    public function getByPost(Request $request) {
+        $validator = \Validator::make($request->all(), [
+            'post_id' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorBadRequest($validator);
+        }
+        $paginationSize = 40;
+        $post = Posts::findOrFail($request->get('post_id'));
+
+        $comment = Comments::getCommentsByPostId($post->id, $paginationSize, $request->get('page'));
+
+        $result['data'] = [
+            'comment' => $comment
+        ];
+        return $result;
     }
 }
