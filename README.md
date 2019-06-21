@@ -24,6 +24,7 @@
 ## Infos
 - Infelizmente nao deu tempo de implementar autenticacao
 - A logica para aguentar mais requisições foi utilizar o lumen que aguenta mais que o laravel, combinado com o redis que cacheia por 2 segundos, ou seja so faz a requisição no BD a cada 2 segundos
+- Para utilizar a paginacao, basta passar o parametro 'page', referente a pagina que voce deseja
 
 ## Para usar
 
@@ -56,7 +57,7 @@ E depois para gerar dados ficticios:
 ```sh
 php artisan db:seed
 ```
-##Docs
+## Docs
 
 Documentacao dos metodos da Api esta aqui (com exemplos):
 
