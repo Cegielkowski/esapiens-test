@@ -119,17 +119,21 @@ class CommentController extends Controller
     }
 
     public function getByPost(Request $request) {
-        $validator = \Validator::make($request->all(), [
-            'post_id' => 'required|integer'
-        ]);
 
-        if ($validator->fails()) {
-            return $this->errorBadRequest($validator);
-        }
         $paginationSize = 40;
-        $post = Posts::findOrFail($request->get('post_id'));
+        if (!empty($request->get('post_id'))) {
+            $post = Posts::findOrFail($request->get('post_id'));
+            $id = $post->id;
+            $type = false;
+        } else if(!empty($request->get('user_id'))) {
+            $user = User::findOrFail($request->get('user_id'));
+            $id = $user->id;
+            $type = 'user';
+        } else {
+            return $this->response->array(['error' => 'You have to provide user_id or post_id'])->setStatusCode(401);
+        }
 
-        $comment = Comments::getCommentsByPostId($post->id, $paginationSize, $request->get('page'));
+        $comment = Comments::getCommentsByPostId($id, $paginationSize, $request->get('page'), $type);
 
         $result['data'] = [
             'comment' => $comment

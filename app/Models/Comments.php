@@ -40,23 +40,28 @@ class Comments extends Model
     }
 
 
-    public static function getCommentsByPostId($postId, $paginationSize = 20, $page = 1, $userId = null)
+    public static function getCommentsByPostId($postId, $paginationSize = 20, $page = 1, $type = 'post_id')
     {
         Helper::fixNegativeNumbers($paginationSize, 20);
         Helper::fixNegativeNumbers($page, 1);
         $expiration = 1/30; //Minutes that will be cached, in this case, it will be for 2 seconds
         $key = "postcomments_" . $postId . "_" . $page;
 
+        if ($type == 'user') {
+            User::findOrFail($postId);
+            $type = 'user_id';
+        } else {
+            Posts::findOrFail($postId);
+            $type = 'post_id';
+        }
 
-        return Cache::remember($key,$expiration, function() use($paginationSize,$postId) {
-            // REMOVER O 3 H PELO AMOR
+        return Cache::remember($key,$expiration, function() use($paginationSize,$postId,$type) {
             return DB::table('comments AS c')
-//                ->selectRaw('c.user_id, c.id as comment_id, u.email as login, u.subscriber, c.highlight, c.created_at, c.content, (c.updated_at + INTERVAL c.coins minute >  now() - interval 3 hour ) * c.coins as active')
-                ->selectRaw('c.user_id, c.id as comment_id, u.email as login, u.subscriber, c.highlight, c.created_at, c.content, (c.updated_at + INTERVAL c.coins minute >  now()) * c.coins as active')
+                ->selectRaw('c.user_id, c.id as comment_id, u.email as login, u.subscriber, c.highlight, c.created_at, c.content')
                 ->join('posts AS p', 'p.id', '=', 'c.post_id')
                 ->join('users AS u', 'u.id', '=', 'c.user_id')
-                ->where('c.post_id', $postId)
-                ->orderBy('active', 'desc')
+                ->where('c.'.$type, $postId)
+                ->orderByRaw('((c.updated_at + INTERVAL c.coins minute >  now() ) * c.coins) DESC')
                 ->orderBy('c.created_at', 'desc')
                 ->paginate($paginationSize);
         });
